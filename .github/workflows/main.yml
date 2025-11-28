@@ -1,0 +1,34 @@
+name: Build & Run 20 Containers (Matrix)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+
+jobs:
+  run_matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        index: [1,2,3,4,5]
+
+    steps:
+    - name: Checkout source
+      uses: actions/checkout@v4
+
+    - name: Build Docker image
+      run: |
+        docker build -t local-selenium-videozz .
+
+    - name: Run container
+      run: |
+        echo "Running container number: ${{ matrix.index }}"
+        docker run --rm \
+          --name selenium_${{ matrix.index }} \
+          --shm-size=2g \
+          local-selenium-videozz
+
+    - name: Finished
+      run: echo "Container ${{ matrix.index }} finished."
